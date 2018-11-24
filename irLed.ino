@@ -22,7 +22,10 @@ bool customLoop = false; // Variable telling us we are in a custom animation loo
 int currentColors[] = {0, 0, 0};
 unsigned long previousMillis = 0; // variable for the delay function
 int intensity = 10; // Intensity variable
+int speedValue = 5; // Speed Variable
+
 void RGB_Remote(long code);
+
 /* DEFINE IR CODES */
 #define OFF_CODE            16712445
 #define NEXT_ANIMATION      16745085
@@ -32,6 +35,12 @@ void RGB_Remote(long code);
 #define GREEN_CODE          16751205
 #define BLUE_CODE           16753245
 #define WHITE_CODE          16720605
+#define RED2_CODE           16722645
+#define GREEN2_CODE         16755285
+#define BLUE2_CODE          16749165
+#define WHITE2_CODE         16716525
+#define QUICK_CODE          16771095
+#define SLOW_CODE           16762935
 #define DIY1_CODE           16724175
 #define DIY2_CODE           16756815
 #define DIY3_CODE           16740495
@@ -82,7 +91,8 @@ void loop()
 
 void findCode(){
   if (irrecv.decode(&results)) {
-    RGB_Remote((int)results.value);
+    int lul = results.value;
+    RGB_Remote(lul);
     irrecv.resume();  // Receive the next value
     if((int)results.value != DIY1_CODE && (int)results.value != DIY2_CODE && (int)results.value != DIY3_CODE && (int)results.value != DIY4_CODE && (int)results.value != DIY5_CODE && (int)results.value != DIY6_CODE){
       customLoop = false;
@@ -114,6 +124,28 @@ void sendColor()
       pixels.setPixelColor(i, pixels.Color(redComputed,greenComputed,blueComputed));
     }
     pixels.show();
+  }
+}
+
+// raise the intensity of light or the speed of animation
+void raiseIntensity() {
+  if (!customLoop) {
+    if (intensity <= 9) {
+      intensity++;
+    }
+  } else if (speedValue <= 9) {
+    speedValue++;
+  }
+}
+
+// lower the intensity of light or the speed of animation
+void lowerIntensity() {
+  if (!customLoop) {
+    if (intensity >= 2) {
+      intensity--;
+    }
+  } else if (speedValue >= 2) {
+    speedValue--;
   }
 }
 
@@ -217,24 +249,26 @@ void test1(int timer){
  }
 
 void colorWipe() {
-  int red = currentColors[0];
-  int green = currentColors[1];
-  int blue = currentColors[2];
   customLoop = true;
-  
   while(customLoop){
     setOff();
     for(int i=0;i<NUMPIXELS;i++)
     {
       if (irrecv.decode(&results)) {
-        if((int)results.value != DIY3_CODE){
-          RGB_Remote((int)results.value);
+        int lul = results.value;
+        Serial.println(lul);
+        if(lul != DIY3_CODE){
+          RGB_Remote(lul);
           return; break;
           //irrecv.resume();  // Receive the next value
+        }else if(lul == QUICK_CODE){
+          raiseIntensity();  
+        }else if(lul == SLOW_CODE){
+          lowerIntensity();
         }
         irrecv.resume();
       }
-      pixels.setPixelColor(i, pixels.Color(red,green,blue));
+      pixels.setPixelColor(i, pixels.Color(currentColors[0],currentColors[1],currentColors[2]));
       pixels.show();
       delay(50);
     }
@@ -243,37 +277,41 @@ void colorWipe() {
 }
 
 void RGB_Remote(int code){
-  Serial.println(code);
-  switch((long)code){
+  //Serial.println(code);
+  switch(code){
     case OFF_CODE: // An/Aus
-      Serial.println("An/Aus");
+      //Serial.println("An/Aus");
       setColor(BLACK_COLOR);
       break; 
     case NEXT_ANIMATION: //nächste animation
       Serial.println("nächste animation");
       break; 
     case INTENSITY_DN_CODE: //Helligkeit runter
-      Serial.println("Helligkeit runter"); 
+      //Serial.println("Helligkeit runter"); 
       break; 
     case INTENSITY_UP_CODE: //Helligkeit hoch
-      Serial.println("Helligkeit hoch");
+      //Serial.println("Helligkeit hoch");
       break; 
     case RED_CODE: //Rot
-      Serial.println("Rot"); 
+      //Serial.println("Rot"); 
       setColor(RED_COLOR);
       break; 
     case GREEN_CODE: //Grün
-      Serial.println("Grün"); 
+      //Serial.println("Grün"); 
       setColor(GREEN_COLOR); 
       break; 
     case BLUE_CODE: //Blau
-      Serial.println("Blau"); 
+      //Serial.println("Blau"); 
       setColor(BLUE_COLOR);
       break; 
     case WHITE_CODE: //White
-      Serial.println("White"); 
+      //Serial.println("White"); 
       setColor(WHITE_COLOR); 
-      break; 
+      break;
+    case RED2_CODE: //Rot2
+      //Serial.println("Red2"); 
+      setColor(ORANGE_COLOR); 
+      break;
     case DIY1_CODE:
       Serial.println("DIY1");
       test1(40); 
@@ -282,7 +320,7 @@ void RGB_Remote(int code){
       Serial.println("DIY2");
       break;
     case DIY3_CODE:
-      Serial.println("ColorWipe"); 
+      //Serial.println("ColorWipe"); 
       colorWipe(); // Red
       break;
     case DIY4_CODE:
