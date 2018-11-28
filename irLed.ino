@@ -1,15 +1,19 @@
-#include <IRremote.h>
+#include <IRrecv.h>
+#include <IRremoteESP8266.h>
+#include <IRsend.h>
+#include <IRtimer.h>
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
   #include <avr/power.h>
 #endif
+#include <TimedAction.h>
 
 /* LED */
-#define PIN            10
+#define PIN            4
 #define NUMPIXELS      60
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
-int RECV_PIN = 11;  //  Der Kontakt der am Infrarotsensor die Daten ausgibt, wird mit Pin 11 des Arduinoboards verbunden.
+int RECV_PIN = 5;  //  Der Kontakt der am Infrarotsensor die Daten ausgibt, wird mit Pin 11 des Arduinoboards verbunden.
 
 IRrecv irrecv(RECV_PIN);   // An dieser Stelle wird ein Objekt definiert, dass den Infrarotsensor an Pin 11 ausliest.
 
@@ -20,7 +24,7 @@ unsigned long previousMillis = 0; // variable for the delay function
 int intensity = 10; // Intensity variable
 int speedValue = 5; // Speed Variable
 
-void RGB_Remote(int code);
+void RGB_Remote(long code);
 
 /* DEFINE IR CODES */
 #define OFF_CODE            16712445
@@ -68,15 +72,17 @@ void setup()
 {
   pixels.begin(); // This initializes the NeoPixel library.
   pixels.show();
-  Serial.begin(9600);    //Im Setup wird die Serielle Verbindung gestartet, damit man sich die Empfangenen Daten der Fernbedienung per seriellen Monitor ansehen kann.
+  Serial.begin(115200);    //Im Setup wird die Serielle Verbindung gestartet, damit man sich die Empfangenen Daten der Fernbedienung per seriellen Monitor ansehen kann.
   irrecv.enableIRIn();   //Dieser Befehl initialisiert den Infrarotempfänger.
 
 }
 
 void loop()
 {
+  
   unsigned long currentMillis = millis();
-    if (currentMillis - previousMillis >= 250) {
+    if (currentMillis - previousMillis >= 100) {
+      //Serial.println("test");
       previousMillis = currentMillis;
       findCode();
     }
@@ -85,16 +91,15 @@ void loop()
 
 void findCode(){
   if (irrecv.decode(&results)) {
-    RGB_Remote((results.value));
-    Serial.println(results.value, HEX);
-    if(results.value != DIY1_CODE && results.value != DIY2_CODE && results.value != DIY3_CODE && results.value != DIY4_CODE && results.value != DIY5_CODE && results.value != DIY6_CODE){
+    int lul = results.value;
+    RGB_Remote(lul);
+    irrecv.resume();  // Receive the next value
+    if((int)results.value != DIY1_CODE && (int)results.value != DIY2_CODE && (int)results.value != DIY3_CODE && (int)results.value != DIY4_CODE && (int)results.value != DIY5_CODE && (int)results.value != DIY6_CODE){
       customLoop = false;
-      
       sendColor();
     }
     
   }
-  irrecv.resume();  // Receive the next value
 }
 
 void setColor(int colors[]) {
@@ -158,8 +163,8 @@ void test1(int timer){
   for(int i=0;i<NUMPIXELS + 7;i++)
   {
     if (irrecv.decode(&results)) {
-        if(results.value != DIY1_CODE){
-          RGB_Remote(results.value);
+        if((int)results.value != DIY1_CODE){
+          RGB_Remote((int)results.value);
           return; break;
           //irrecv.resume();  // Receive the next value
         }
@@ -180,8 +185,8 @@ void test1(int timer){
   {
     if (irrecv.decode(&results)) {
       
-        if(results.value != DIY1_CODE){
-          RGB_Remote(results.value);
+        if((int)results.value != DIY1_CODE){
+          RGB_Remote((int)results.value);
           return; break;
           //irrecv.resume();  // Receive the next value
         }
@@ -201,8 +206,8 @@ void test1(int timer){
     for(int i=0;i<NUMPIXELS + 7;i++)
   {
     if (irrecv.decode(&results)) {
-        if(results.value != DIY1_CODE){
-          RGB_Remote(results.value);
+        if((int)results.value != DIY1_CODE){
+          RGB_Remote((int)results.value);
           return; break;
           //irrecv.resume();  // Receive the next value
         }
@@ -222,8 +227,8 @@ void test1(int timer){
   for(int i=0;i<NUMPIXELS + 7;i++)
   {
     if (irrecv.decode(&results)) {
-        if(results.value != DIY1_CODE){
-          RGB_Remote(results.value);
+        if((int)results.value != DIY1_CODE){
+          RGB_Remote((int)results.value);
           return; break;
           //irrecv.resume();  // Receive the next value
         }
@@ -249,18 +254,7 @@ void colorWipe() {
     setOff();
     for(int i=0;i<NUMPIXELS;i++)
     {
-      if (irrecv.decode(&results)) {
-        if(results.value != DIY3_CODE){
-          RGB_Remote(results.value);
-          return; break;
-          //irrecv.resume();  // Receive the next value
-        }else if(results.value == QUICK_CODE){
-          raiseIntensity();  
-        }else if(results.value == SLOW_CODE){
-          lowerIntensity();
-        }
-        irrecv.resume();
-      }
+      checkForInterrupt();
       pixels.setPixelColor(i, pixels.Color(currentColors[0],currentColors[1],currentColors[2]));
       pixels.show();
       delay(50);
@@ -269,15 +263,28 @@ void colorWipe() {
   
 }
 
+void checkForInterrupt(){
+  if (irrecv.decode(&results)) {
+        int lul = results.value;
+        Serial.println(lul);
+        if(lul != DIY3_CODE){
+          RGB_Remote(lul);
+          return; exit(1);
+          //irrecv.resume();  // Receive the next value
+        }else if(lul == QUICK_CODE){
+          raiseIntensity();  
+        }else if(lul == SLOW_CODE){
+          lowerIntensity();
+        }
+        irrecv.resume();
+      }
+}
+
 void RGB_Remote(int code){
-  Serial.println(code);
+  //Serial.println(code);
   switch(code){
-    case OFF_CODE1: 
-      Serial.println("An/Aus");
-      setColor(BLACK_COLOR);
-      break; 
-    case OFF_CODE2: 
-      Serial.println("An/Aus");
+    case OFF_CODE: // An/Aus
+      //Serial.println("An/Aus");
       setColor(BLACK_COLOR);
       break; 
     case NEXT_ANIMATION: //nächste animation
@@ -287,42 +294,26 @@ void RGB_Remote(int code){
       //Serial.println("Helligkeit runter"); 
       break; 
     case INTENSITY_UP_CODE: //Helligkeit hoch
-      Serial.println("Helligkeit hoch");
+      //Serial.println("Helligkeit hoch");
       break; 
-    case RED_CODE1: //Rot
-      Serial.println("Rot"); 
+    case RED_CODE: //Rot
+      //Serial.println("Rot"); 
       setColor(RED_COLOR);
       break; 
-    case RED_CODE2: //Rot
-      Serial.println("Rot"); 
-      setColor(RED_COLOR);
-      break;
-    case GREEN_CODE1 || GREEN_CODE2: //Grün
-      Serial.println("Grün"); 
+    case GREEN_CODE: //Grün
+      //Serial.println("Grün"); 
       setColor(GREEN_COLOR); 
       break; 
-    case GREEN_CODE2: //Grün
-      Serial.println("Grün"); 
-      setColor(GREEN_COLOR); 
-      break; 
-    case BLUE_CODE1: //Blau
-      Serial.println("Blau"); 
+    case BLUE_CODE: //Blau
+      //Serial.println("Blau"); 
       setColor(BLUE_COLOR);
       break; 
-    case BLUE_CODE2: //Blau
-      Serial.println("Blau"); 
-      setColor(BLUE_COLOR);
-      break;
-    case WHITE_CODE1: //White
-      Serial.println("White"); 
-      setColor(WHITE_COLOR); 
-      break;
-    case WHITE_CODE2: //White
-      Serial.println("White"); 
+    case WHITE_CODE: //White
+      //Serial.println("White"); 
       setColor(WHITE_COLOR); 
       break;
     case RED2_CODE: //Rot2
-      Serial.println("Red2"); 
+      //Serial.println("Red2"); 
       setColor(ORANGE_COLOR); 
       break;
     case DIY1_CODE:
@@ -333,7 +324,7 @@ void RGB_Remote(int code){
       Serial.println("DIY2");
       break;
     case DIY3_CODE:
-      Serial.println("ColorWipe"); 
+      //Serial.println("ColorWipe"); 
       colorWipe(); // Red
       break;
     case DIY4_CODE:
