@@ -250,34 +250,24 @@ void test1(int timer){
 
 void colorWipe() {
   customLoop = true;
+  irrecv.resume();
   while(customLoop){
     setOff();
     for(int i=0;i<NUMPIXELS;i++)
     {
-      checkForInterrupt();
+      if (irrecv.decode(&results)) {
+        int lul = results.value;
+        Serial.println(lul);
+          RGB_Remote(lul);
+          return; break;
+        irrecv.resume();
+      }
       pixels.setPixelColor(i, pixels.Color(currentColors[0],currentColors[1],currentColors[2]));
       pixels.show();
       delay(50);
     }
   }
   
-}
-
-void checkForInterrupt(){
-  if (irrecv.decode(&results)) {
-        int lul = results.value;
-        Serial.println(lul);
-        if(lul != DIY3_CODE){
-          RGB_Remote(lul);
-          return; exit(1);
-          //irrecv.resume();  // Receive the next value
-        }else if(lul == QUICK_CODE){
-          raiseIntensity();  
-        }else if(lul == SLOW_CODE){
-          lowerIntensity();
-        }
-        irrecv.resume();
-      }
 }
 
 void RGB_Remote(int code){
