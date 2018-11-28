@@ -1,2 +1,2 @@
-# Arduino-IRRemote-Led-Strip ESP8266
+# Arduino-IRRemote-Led-Strip ESP8266 with Adafruit_NeoPixel
 
