@@ -23,7 +23,6 @@ int currentColors[] = {0, 0, 0};
 unsigned long previousMillis = 0; // variable for the delay function
 int intensity = 10; // Intensity variable
 int speedValue = 5; // Speed Variable
-
 void RGB_Remote(long code);
 
 /* DEFINE IR CODES */
@@ -119,11 +118,13 @@ void sendColor()
     int redComputed = map(red, 0, 255, 0, mappedIntensity);
     int blueComputed = map(blue, 0, 255, 0, mappedIntensity);
     int greenComputed = map(green, 0, 255, 0, mappedIntensity);
-
+    
     for (int i = 0; i < NUMPIXELS; i++ ) {
       pixels.setPixelColor(i, pixels.Color(redComputed,greenComputed,blueComputed));
+      pixels.show();
+      delay(5);
     }
-    pixels.show();
+    
   }
 }
 
@@ -249,6 +250,7 @@ void test1(int timer){
  }
 
 void colorWipe() {
+  delay(50);
   customLoop = true;
   while(customLoop){
     setOff();
@@ -257,15 +259,9 @@ void colorWipe() {
       if (irrecv.decode(&results)) {
         int lul = results.value;
         Serial.println(lul);
-        if(lul != DIY3_CODE){
           RGB_Remote(lul);
           return; break;
-          //irrecv.resume();  // Receive the next value
-        }else if(lul == QUICK_CODE){
-          raiseIntensity();  
-        }else if(lul == SLOW_CODE){
-          lowerIntensity();
-        }
+          //irrecv.resume();
         irrecv.resume();
       }
       pixels.setPixelColor(i, pixels.Color(currentColors[0],currentColors[1],currentColors[2]));
