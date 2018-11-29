@@ -72,7 +72,7 @@ void setup()
 {
   pixels.begin(); // This initializes the NeoPixel library.
   pixels.show();
-  Serial.begin(115200);    //Im Setup wird die Serielle Verbindung gestartet, damit man sich die Empfangenen Daten der Fernbedienung per seriellen Monitor ansehen kann.
+  Serial.begin(9600);    //Im Setup wird die Serielle Verbindung gestartet, damit man sich die Empfangenen Daten der Fernbedienung per seriellen Monitor ansehen kann.
   irrecv.enableIRIn();   //Dieser Befehl initialisiert den Infrarotempfänger.
 
 }
@@ -250,7 +250,6 @@ void test1(int timer){
 
 void colorWipe() {
   customLoop = true;
-  irrecv.resume();
   while(customLoop){
     setOff();
     for(int i=0;i<NUMPIXELS;i++)
@@ -258,8 +257,15 @@ void colorWipe() {
       if (irrecv.decode(&results)) {
         int lul = results.value;
         Serial.println(lul);
+        if(lul != DIY3_CODE){
           RGB_Remote(lul);
           return; break;
+          //irrecv.resume();  // Receive the next value
+        }else if(lul == QUICK_CODE){
+          raiseIntensity();  
+        }else if(lul == SLOW_CODE){
+          lowerIntensity();
+        }
         irrecv.resume();
       }
       pixels.setPixelColor(i, pixels.Color(currentColors[0],currentColors[1],currentColors[2]));
@@ -315,6 +321,7 @@ void RGB_Remote(int code){
       break;
     case DIY3_CODE:
       //Serial.println("ColorWipe"); 
+      irrecv.resume();
       colorWipe(); // Red
       break;
     case DIY4_CODE:
