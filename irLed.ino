@@ -18,6 +18,7 @@ int RECV_PIN = 5;  //  Der Kontakt der am Infrarotsensor die Daten ausgibt, wird
 IRrecv irrecv(RECV_PIN);   // An dieser Stelle wird ein Objekt definiert, dass den Infrarotsensor an Pin 11 ausliest.
 
 decode_results results;  // Dieser Befehl sorgt dafür, dass die Daten, die per Infrarot eingelesen werden unter „results“ abgespeichert werden.
+decode_results results2;
 bool customLoop = false; // Variable telling us we are in a custom animation loop
 int currentColors[] = {0, 0, 0};
 unsigned long previousMillis = 0; // variable for the delay function
@@ -287,18 +288,18 @@ void TwinkleRandom(int Count, int SpeedDelay) {
 }
 
 void colorWipe() {
-  delay(50);
   customLoop = true;
   while(customLoop){
     setOff();
     for(int i=0;i<NUMPIXELS;i++)
     {
-      if (irrecv.decode(&results)) {
-        int lul = results.value;
+      if (irrecv.decode(&results2)) {
+        int lul = (int)results2.value;
+        Serial.print("Neuer IRCode: ");
         Serial.println(lul);
-          RGB_Remote(lul);
-          return; break;
-          //irrecv.resume();
+        RGB_Remote(lul);
+        return; break;
+        //irrecv.resume();
       }
       irrecv.resume();
       pixels.setPixelColor(i, pixels.Color(currentColors[0],currentColors[1],currentColors[2]));
@@ -317,7 +318,7 @@ void RGB_Remote(int code){
       setColor(BLACK_COLOR);
       break; 
     case NEXT_ANIMATION: //nächste animation
-      Serial.println("nächste animation");
+      //Serial.println("nächste animation");
       break; 
     case INTENSITY_DN_CODE: //Helligkeit runter
       //Serial.println("Helligkeit runter"); 
@@ -424,7 +425,10 @@ void RGB_Remote(int code){
     case DIY5_CODE:
       Serial.println("ColorWipe"); 
       break;
-    default: Serial.println((int)results.value);  break; 
+    default: 
+      Serial.print("Code nicht gefunden: ");
+      Serial.println((int)results.value);  
+      break; 
     }
   }
 
