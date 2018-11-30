@@ -1,12 +1,10 @@
 #include <IRrecv.h>
 #include <IRremoteESP8266.h>
-#include <IRsend.h>
 #include <IRtimer.h>
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
   #include <avr/power.h>
 #endif
-#include <TimedAction.h>
 
 /* LED */
 #define PIN            4
