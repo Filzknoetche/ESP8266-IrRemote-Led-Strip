@@ -31,17 +31,31 @@ void RGB_Remote(long code);
 #define INTENSITY_DN_CODE   16759365
 #define INTENSITY_UP_CODE   16726725
 #define RED_CODE            16718565
+#define RED2_CODE           16722645
+#define RED3_CODE           16714485
+#define RED4_CODE           16726215
+#define RED5_CODE           16718055
 #define GREEN_CODE          16751205
 #define GREEN2_CODE         16755285
 #define GREEN3_CODE         16747125
 #define GREEN4_CODE         16758855
 #define GREEN5_CODE         16750695
 #define BLUE_CODE           16753245
-#define WHITE_CODE          16720605
-#define RED2_CODE           16722645
-#define GREEN2_CODE         16755285
 #define BLUE2_CODE          16749165
+#define BLUE3_CODE          16757325
+#define BLUE4_CODE          16742535
+#define BLUE5_CODE          16734375
+#define WHITE_CODE          16720605
 #define WHITE2_CODE         16716525
+#define WHITE3_CODE         16724685
+#define WHITE4_CODE         16775175
+#define WHITE5_CODE         16767015
+#define RED_UP_CODE         16722135
+#define RED_DOWN_CODE       16713975
+#define GREEN_UP_CODE       16754775
+#define GREEN_DOWN_CODE     16746615
+#define BLUE_UP_CODE        16738455
+#define BLUE_DOWN_CODE      16730295
 #define QUICK_CODE          16771095
 #define SLOW_CODE           16762935
 #define DIY1_CODE           16724175
@@ -53,25 +67,25 @@ void RGB_Remote(long code);
 
 int BLACK_COLOR[3] = {0, 0, 0};
 int RED_COLOR[3] = {255, 0, 0};
+int RED2_COLOR[3] = {100, 0, 0};
+int RED3_COLOR[3] = {255, 128, 0};
+int RED4_COLOR[3] = {255, 208, 0};
+int RED5_COLOR[3] = {250, 250, 0};
 int GREEN_COLOR[3] = {0, 255, 0};
 int GREEN2_COLOR[3] = {0, 200, 0};
 int GREEN3_COLOR[3] = {0, 150, 0};
 int GREEN4_COLOR[3] = {0, 100, 0};
 int GREEN5_COLOR[3] = {0, 50, 0};
 int BLUE_COLOR[3] =  {0, 0, 255};
+int BLUE2_COLOR[3] =  {0, 5, 79};
+int BLUE3_COLOR[3] =  {102, 0, 255};
+int BLUE4_COLOR[3] =  {47, 0, 119};
+int BLUE5_COLOR[3] =  {46, 15, 94};
 int WHITE_COLOR[3] = {255, 255, 255};
-int ORANGE_COLOR[3] = {255, 128, 0};
-int TURQUOISE_COLOR[3] = {0, 255, 128};
-int NAVY_COLOR[3] = {0, 76, 153};
-int BROWN_COLOR[3] = {153, 76, 0};
-int TEAL_COLOR[3] = {0, 102, 102};
-int PURPLE_DARK_COLOR[3] = {102, 0, 51};
-int ORANGE_LIGHT_COLOR[3] = {255, 153, 51};
-int BLUE_LIGHT_COLOR[3] = {0, 255, 255};
-int PINK_DARK_COLOR[3] = {255, 0, 128};
-int YELLOW_COLOR[3] = {255, 255, 0};
-int BLUE_BABY_COLOR[3] = {51, 153, 255};
-int PINK_COLOR[3] = {255, 102, 178};
+int WHITE2_COLOR[3] = {255, 102, 178};
+int WHITE3_COLOR[3] = {255, 0, 128};
+int WHITE4_COLOR[3] = {0, 255, 255};
+int WHITE5_COLOR[3] = {0, 140, 140};
 
 int AVAILABLE_COLORS[16][3] = {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}, {255, 255, 255}, {255, 128, 0}, {0, 255, 128}, {0, 76, 153}, {153, 76, 0}, {0, 102, 102}, {102, 0, 51}, {255, 153, 51}, {0, 255, 255}, {255, 0, 127}, {255, 255, 0}, {51, 153, 255}, {255, 102, 158}} ;
 
@@ -315,6 +329,22 @@ void RGB_Remote(int code){
       //Serial.println("Rot"); 
       setColor(RED_COLOR);
       break; 
+    case RED2_CODE: //Rot
+      //Serial.println("Rot"); 
+      setColor(RED2_COLOR);
+      break; 
+    case RED3_CODE: //Rot
+      //Serial.println("Rot"); 
+      setColor(RED3_COLOR);
+      break; 
+    case RED4_CODE: //Rot
+      //Serial.println("Rot"); 
+      setColor(RED4_COLOR);
+      break; 
+    case RED5_CODE: //Rot
+      //Serial.println("Rot"); 
+      setColor(RED5_COLOR);
+      break; 
     case GREEN_CODE: //Grün
       //Serial.println("Grün"); 
       setColor(GREEN_COLOR); 
@@ -339,13 +369,41 @@ void RGB_Remote(int code){
       //Serial.println("Blau"); 
       setColor(BLUE_COLOR);
       break; 
+    case BLUE2_CODE: //Blau
+      //Serial.println("Blau"); 
+      setColor(BLUE2_COLOR);
+      break; 
+    case BLUE3_CODE: //Blau
+      //Serial.println("Blau"); 
+      setColor(BLUE3_COLOR);
+      break; 
+    case BLUE4_CODE: //Blau
+      //Serial.println("Blau"); 
+      setColor(BLUE4_COLOR);
+      break;
+    case BLUE5_CODE: //Blau
+      //Serial.println("Blau"); 
+      setColor(BLUE5_COLOR);
+      break; 
     case WHITE_CODE: //White
       //Serial.println("White"); 
       setColor(WHITE_COLOR); 
       break;
-    case RED2_CODE: //Rot2
-      //Serial.println("Red2"); 
-      setColor(ORANGE_COLOR); 
+    case WHITE2_CODE: //White
+      //Serial.println("White"); 
+      setColor(WHITE2_COLOR); 
+      break;
+    case WHITE3_CODE: //White
+      //Serial.println("White"); 
+      setColor(WHITE3_COLOR); 
+      break;
+    case WHITE4_CODE: //White
+      //Serial.println("White"); 
+      setColor(WHITE4_COLOR); 
+      break;
+    case WHITE5_CODE: //White
+      //Serial.println("White"); 
+      setColor(WHITE5_COLOR); 
       break;
     case DIY1_CODE:
       Serial.println("DIY1");
