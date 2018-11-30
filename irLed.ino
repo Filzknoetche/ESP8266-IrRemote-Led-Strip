@@ -32,6 +32,10 @@ void RGB_Remote(long code);
 #define INTENSITY_UP_CODE   16726725
 #define RED_CODE            16718565
 #define GREEN_CODE          16751205
+#define GREEN2_CODE         16755285
+#define GREEN3_CODE         16747125
+#define GREEN4_CODE         16758855
+#define GREEN5_CODE         16750695
 #define BLUE_CODE           16753245
 #define WHITE_CODE          16720605
 #define RED2_CODE           16722645
@@ -50,6 +54,10 @@ void RGB_Remote(long code);
 int BLACK_COLOR[3] = {0, 0, 0};
 int RED_COLOR[3] = {255, 0, 0};
 int GREEN_COLOR[3] = {0, 255, 0};
+int GREEN2_COLOR[3] = {0, 200, 0};
+int GREEN3_COLOR[3] = {0, 150, 0};
+int GREEN4_COLOR[3] = {0, 100, 0};
+int GREEN5_COLOR[3] = {0, 50, 0};
 int BLUE_COLOR[3] =  {0, 0, 255};
 int WHITE_COLOR[3] = {255, 255, 255};
 int ORANGE_COLOR[3] = {255, 128, 0};
@@ -102,6 +110,9 @@ void findCode(){
 }
 
 void setColor(int colors[]) {
+  if(colors[0] == currentColors[0] && colors[1] == currentColors[1] && colors[2] == currentColors[2]){
+    return;
+  }
   currentColors[0] = colors[0];
   currentColors[1] = colors[1];
   currentColors[2] = colors[2];
@@ -249,6 +260,18 @@ void test1(int timer){
   }
  }
 
+void TwinkleRandom(int Count, int SpeedDelay) {
+  setColor(BLACK_COLOR);
+
+  for (int i = 0; i < Count; i++) {
+    pixels.setPixelColor(random(NUMPIXELS), pixels.Color(random(0, 255),random(0, 255),random(0, 255)));
+    pixels.show();
+    delay(SpeedDelay);
+  }
+
+  delay(SpeedDelay);
+}
+
 void colorWipe() {
   delay(50);
   customLoop = true;
@@ -262,8 +285,8 @@ void colorWipe() {
           RGB_Remote(lul);
           return; break;
           //irrecv.resume();
-        irrecv.resume();
       }
+      irrecv.resume();
       pixels.setPixelColor(i, pixels.Color(currentColors[0],currentColors[1],currentColors[2]));
       pixels.show();
       delay(50);
@@ -296,6 +319,22 @@ void RGB_Remote(int code){
       //Serial.println("Grün"); 
       setColor(GREEN_COLOR); 
       break; 
+    case GREEN2_CODE: //Grün
+      //Serial.println("Grün"); 
+      setColor(GREEN2_COLOR); 
+      break; 
+    case GREEN3_CODE: //Grün
+      //Serial.println("Grün"); 
+      setColor(GREEN3_COLOR); 
+      break;
+    case GREEN4_CODE: //Grün
+      //Serial.println("Grün"); 
+      setColor(GREEN4_COLOR); 
+      break;  
+    case GREEN5_CODE: //Grün
+      //Serial.println("Grün"); 
+      setColor(GREEN5_COLOR); 
+      break; 
     case BLUE_CODE: //Blau
       //Serial.println("Blau"); 
       setColor(BLUE_COLOR);
@@ -314,6 +353,7 @@ void RGB_Remote(int code){
       break;
     case DIY2_CODE:
       Serial.println("DIY2");
+      TwinkleRandom(20, 100);
       break;
     case DIY3_CODE:
       //Serial.println("ColorWipe"); 
@@ -326,7 +366,7 @@ void RGB_Remote(int code){
     case DIY5_CODE:
       Serial.println("ColorWipe"); 
       break;
-    default:  break; //Bei unbekanntem Input //Serial.println((long)results.value);
+    default: Serial.println((int)results.value);  break; 
     }
   }
 
