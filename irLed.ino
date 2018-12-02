@@ -302,31 +302,20 @@ void test1(int timer){
   }
  }
 
-void TwinkleRandom(int Count, int SpeedDelay) {
-  setColor(BLACK_COLOR);
-  for (int i = 0; i < Count; i++) {
-    pixels.setPixelColor(random(NUMPIXELS), pixels.Color(random(0, 255),random(0, 255),random(0, 255)));
-    pixels.show();
-    delay(SpeedDelay);
-  }
-  delay(SpeedDelay);
-}
-
 void colorWipe() {
   customLoop = true;
   while(customLoop){
     setOff();
     for(int i=0;i<NUMPIXELS;i++)
     {
-      if (irrecv.decode(&results2)) {
-        int lul = (int)results2.value;
-        Serial.print("Neuer IRCode: ");
-        Serial.println(lul);
-        RGB_Remote(lul);
-        return; break;
-        //irrecv.resume();
+      if (irrecv.decode(&results)) {
+        if((int)results.value != DIY3_CODE){
+          RGB_Remote((int)results.value);
+          return; break;
+          //irrecv.resume();  // Receive the next value
+        }
+        irrecv.resume();
       }
-      irrecv.resume();
       pixels.setPixelColor(i, pixels.Color(currentColors[0],currentColors[1],currentColors[2]));
       pixels.show();
       delay(50);
@@ -341,6 +330,8 @@ void RGB_Remote(int code){
     case OFF_CODE: // An/Aus
       //Serial.println("An/Aus");
       setColor(BLACK_COLOR);
+      currentBrightness = 255;
+      pixels.setBrightness(currentBrightness);
       break; 
     case NEXT_ANIMATION: //nächste animation
       //Serial.println("nächste animation");
@@ -439,7 +430,6 @@ void RGB_Remote(int code){
       break;
     case DIY2_CODE:
       Serial.println("DIY2");
-      TwinkleRandom(20, 100);
       break;
     case DIY3_CODE:
       //Serial.println("ColorWipe"); 
