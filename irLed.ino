@@ -22,6 +22,7 @@ int currentColors[] = {0, 0, 0};
 unsigned long previousMillis = 0; // variable for the delay function
 int intensity = 10; // Intensity variable
 int speedValue = 5; // Speed Variable
+int currentBrightness = 255;
 void RGB_Remote(long code);
 
 /* DEFINE IR CODES */
@@ -94,12 +95,11 @@ void setup()
   pixels.show();
   Serial.begin(9600);    //Im Setup wird die Serielle Verbindung gestartet, damit man sich die Empfangenen Daten der Fernbedienung per seriellen Monitor ansehen kann.
   irrecv.enableIRIn();   //Dieser Befehl initialisiert den Infrarotempfänger.
-
+  onRdy();
 }
 
 void loop()
 {
-  
   unsigned long currentMillis = millis();
     if (currentMillis - previousMillis >= 100) {
       //Serial.println("test");
@@ -108,7 +108,27 @@ void loop()
     }
 }
 
-
+void onRdy(){
+  for (int i = 0; i < NUMPIXELS; i++ ) {
+    pixels.setPixelColor(i, pixels.Color(0,255,0));
+  }
+  pixels.show();
+  delay(100);
+  for (int i = 0; i < NUMPIXELS; i++ ) {
+    pixels.setPixelColor(i, pixels.Color(0,0,0));
+  }
+  pixels.show();
+  delay(100);
+  for (int i = 0; i < NUMPIXELS; i++ ) {
+    pixels.setPixelColor(i, pixels.Color(0,255,0));
+  }
+  pixels.show();
+  delay(50);
+  for (int i = 0; i < NUMPIXELS; i++ ) {
+    pixels.setPixelColor(i, pixels.Color(0,0,0));
+  }
+  pixels.show();
+}
 void findCode(){
   if (irrecv.decode(&results)) {
     int lul = results.value;
@@ -118,7 +138,6 @@ void findCode(){
       customLoop = false;
       sendColor();
     }
-    
   }
 }
 
@@ -172,6 +191,16 @@ void lowerIntensity() {
   } else if (speedValue >= 2) {
     speedValue--;
   }
+}
+
+void raiseBrightness(){
+  currentBrightness = currentBrightness+50;
+  pixels.setBrightness(currentBrightness);
+}
+
+void lowerBrightness(){
+    currentBrightness = currentBrightness-50;
+    pixels.setBrightness(currentBrightness);
 }
 
 void setOff() {
@@ -275,13 +304,11 @@ void test1(int timer){
 
 void TwinkleRandom(int Count, int SpeedDelay) {
   setColor(BLACK_COLOR);
-
   for (int i = 0; i < Count; i++) {
     pixels.setPixelColor(random(NUMPIXELS), pixels.Color(random(0, 255),random(0, 255),random(0, 255)));
     pixels.show();
     delay(SpeedDelay);
   }
-
   delay(SpeedDelay);
 }
 
@@ -319,11 +346,13 @@ void RGB_Remote(int code){
       //Serial.println("nächste animation");
       break; 
     case INTENSITY_DN_CODE: //Helligkeit runter
-      //Serial.println("Helligkeit runter"); 
+      Serial.println("Helligkeit runter");
+      lowerBrightness();
       break; 
     case INTENSITY_UP_CODE: //Helligkeit hoch
-      //Serial.println("Helligkeit hoch");
-      break; 
+      Serial.println("Helligkeit hoch");
+      raiseBrightness();
+      break;
     case RED_CODE: //Rot
       //Serial.println("Rot"); 
       setColor(RED_COLOR);
