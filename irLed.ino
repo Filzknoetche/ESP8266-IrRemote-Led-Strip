@@ -338,7 +338,7 @@ void randomPositionFill(uint32_t c, uint8_t wait) {
   while(lights<pixels.numPixels()-1) {
     int j = random(0,pixels.numPixels()-1); // pick a random LED
     if(used[j] != 1){ // if LED not already lit, proceed
-      pixels.setPixelColor(j, c);
+      pixels.setPixelColor(j, pixels.Color(currentColors[0], currentColors[1], currentColors[2]));
       used[j] = 1; // update array to remember it is lit
       lights++;
       pixels.show(); // display
@@ -352,8 +352,8 @@ void middleFill(uint32_t c, uint8_t wait) {
   setOff();
  
   for(uint16_t i=0; i<(pixels.numPixels()/2); i++) { // start from the middle, lighting an LED on each side
-    pixels.setPixelColor(pixels.numPixels()/2 + i, c);
-    pixels.setPixelColor(pixels.numPixels()/2 - i, c);
+    pixels.setPixelColor(pixels.numPixels()/2 + i, pixels.Color(currentColors[0], currentColors[1], currentColors[2]));
+    pixels.setPixelColor(pixels.numPixels()/2 - i, pixels.Color(currentColors[0], currentColors[1], currentColors[2]));
     pixels.show();
     delay(wait);
   }
@@ -364,6 +364,7 @@ void middleFill(uint32_t c, uint8_t wait) {
     pixels.show();
     delay(wait);
   }
+  setOff();
 }
 
 // gradually fill up the strip with random colors
@@ -384,6 +385,7 @@ void randomColorFill(uint8_t wait) {
       delay(wait);
     }
   }
+  setOff();
 }
 
 // Light up the strip starting from the sides
@@ -391,8 +393,8 @@ void sideFill(uint32_t c, uint8_t wait) {
   setOff();
  
   for(uint16_t i=0; i<(pixels.numPixels()/2); i++) { // fill strip from sides to middle
-    pixels.setPixelColor(i, c);
-    pixels.setPixelColor(pixels.numPixels() - i, c);
+    pixels.setPixelColor(i, pixels.Color(currentColors[0], currentColors[1], currentColors[2]));
+    pixels.setPixelColor(pixels.numPixels() - i, pixels.Color(currentColors[0], currentColors[1], currentColors[2]));
     pixels.show();
     delay(wait);
   }
@@ -403,6 +405,7 @@ void sideFill(uint32_t c, uint8_t wait) {
     pixels.show();
     delay(wait);
   }
+  setOff();
 }
 
 void RGB_Remote(int code){
