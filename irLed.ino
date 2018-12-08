@@ -129,6 +129,13 @@ void onRdy(){
   }
   pixels.show();
 }
+
+void setOff(){
+  for (int i = 0; i < NUMPIXELS; i++ ) {
+    pixels.setPixelColor(i, pixels.Color(0,0,0));
+  }
+  pixels.show();
+}
 void findCode(){
   if (irrecv.decode(&results)) {
     int lul = results.value;
@@ -203,12 +210,6 @@ void lowerBrightness(){
     pixels.setBrightness(currentBrightness);
 }
 
-void setOff() {
-  for (int i = 0; i < NUMPIXELS; i++ ) {
-    pixels.setPixelColor(i, pixels.Color(0,0,0));
-  }
-  pixels.show();
-}
 
 void test1(int timer){
   customLoop = true;
@@ -320,8 +321,88 @@ void colorWipe() {
       pixels.show();
       delay(50);
     }
+  } 
+}
+
+// pick a random LED to light up until entire strip is lit
+void randomPositionFill(uint32_t c, uint8_t wait) {
+  setOff();
+ 
+  int used[pixels.numPixels()]; // array to keep track of lit LEDs
+  int lights = 0; // counter
+ 
+  for(int i = 0; i<pixels.numPixels(); i++){ // fill array with 0
+    used[i] = 0;
   }
-  
+ 
+  while(lights<pixels.numPixels()-1) {
+    int j = random(0,pixels.numPixels()-1); // pick a random LED
+    if(used[j] != 1){ // if LED not already lit, proceed
+      pixels.setPixelColor(j, c);
+      used[j] = 1; // update array to remember it is lit
+      lights++;
+      pixels.show(); // display
+      delay(wait);
+    }
+  }
+}
+
+// Light up the strip starting from the middle
+void middleFill(uint32_t c, uint8_t wait) {
+  setOff();
+ 
+  for(uint16_t i=0; i<(pixels.numPixels()/2); i++) { // start from the middle, lighting an LED on each side
+    pixels.setPixelColor(pixels.numPixels()/2 + i, c);
+    pixels.setPixelColor(pixels.numPixels()/2 - i, c);
+    pixels.show();
+    delay(wait);
+  }
+ 
+  for(uint16_t i=0; i<(pixels.numPixels()/2); i++) { // reverse
+    pixels.setPixelColor(i, pixels.Color(0, 0, 0));
+    pixels.setPixelColor(pixels.numPixels() - i, pixels.Color(0, 0, 0));
+    pixels.show();
+    delay(wait);
+  }
+}
+
+// gradually fill up the strip with random colors
+void randomColorFill(uint8_t wait) {
+  setOff();
+ 
+  for(uint16_t i=0; i<pixels.numPixels(); i++) { // iterate over every LED of the strip
+    //int r = random(0,255); // generate a random color
+    //int g = random(0,255);
+    //int b = random(0,255);
+    int r = currentColors[0];
+    int g = currentColors[1];
+    int b = currentColors[2];
+    for(uint16_t j=0; j<pixels.numPixels()-i; j++) { // iterate over every LED of the strip, that hasn't lit up yet
+      pixels.setPixelColor(j-1, pixels.Color(0, 0, 0)); // turn previous LED off
+      pixels.setPixelColor(j, pixels.Color(r, g, b)); // turn current LED on
+      pixels.show(); // apply the colors
+      delay(wait);
+    }
+  }
+}
+
+// Light up the strip starting from the sides
+void sideFill(uint32_t c, uint8_t wait) {
+  setOff();
+ 
+  for(uint16_t i=0; i<(pixels.numPixels()/2); i++) { // fill strip from sides to middle
+    pixels.setPixelColor(i, c);
+    pixels.setPixelColor(pixels.numPixels() - i, c);
+    pixels.show();
+    delay(wait);
+  }
+ 
+  for(uint16_t i=0; i<(pixels.numPixels()/2); i++) { // reverse
+    pixels.setPixelColor(pixels.numPixels()/2 + i, pixels.Color(0, 0, 0));
+    pixels.setPixelColor(pixels.numPixels()/2 - i, pixels.Color(0, 0, 0));
+    pixels.show();
+    delay(wait);
+  }
 }
 
 void RGB_Remote(int code){
@@ -429,7 +510,8 @@ void RGB_Remote(int code){
       test1(40); 
       break;
     case DIY2_CODE:
-      Serial.println("DIY2");
+      Serial.println("randomColorFill");
+      randomColorFill(30);
       break;
     case DIY3_CODE:
       //Serial.println("ColorWipe"); 
@@ -437,10 +519,16 @@ void RGB_Remote(int code){
       colorWipe(); // Red
       break;
     case DIY4_CODE:
-      Serial.println("ColorWipe"); 
+      Serial.println("randomPositionFill");
+      randomPositionFill(30,100);
       break;
     case DIY5_CODE:
-      Serial.println("ColorWipe"); 
+      Serial.println("middleFill");
+      middleFill(30,50);
+      break;
+    case DIY6_CODE:
+      Serial.println("middleFill");
+      sideFill(30,50);
       break;
     default: 
       Serial.print("Code nicht gefunden: ");
